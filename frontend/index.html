@@ -19,46 +19,47 @@
     <link rel="stylesheet" href="./css/index.css" />
   </head>
   <body>
-    myTrakr
+    <h1>myTrakr</h1>
     <main>
       <form action="">
-        New Account:
-        <input type="text" />
-        <button>Add new account</button>
+        <h2>New Account:</h2>
+        <input type="text" id="input__account"/>
+        <button id="btn__add-account">Add new account</button>
       </form>
       <form action="">
-        New Transaction: Deposit
-        <input type="radio" />
-        Withdraw
-        <input type="radio" />
-        Transfer
-        <input type="radio" />
-        Account:
-        <select></select>
-
-        From:
-        <select></select>
-
-        To:
-        <select></select>
-        Category:
-        <select></select>
-        <input type="text" />
-        <button type="button">Add new category</button>
-
-        Description
-        <input type="text" />
-
-        Amount:
-        <input type="number" />
-
-        <button>Add transaction</button>
+        <h2>New Transaction:</h2> 
+        <span>Deposit</span>
+        <input type="radio" id="radio__deposit"/>
+        <span>Withdraw</span>
+        <input type="radio" id="radio__withdraw"/>
+        <span>Transfer</span>
+        <input type="radio" id="radio__transfer"/>
+        <br />
+        <span>Account:</span>
+        <select id="select__account"></select>
+        <span>From:</span>
+        <select id="select__from"></select>
+        <span>To:</span>
+        <select id="select__to"></select>
+        <br />
+        <span>Category:</span>
+        <select id="select__category"></select>
+        <input type="text" id="input__category"/>
+        <button type="button" id="btn__add-category">Add new category</button>
+        <br />
+        <span>Description</span>
+        <input type="text" id="input__description"/>
+        <br />
+        <span>Amount:</span>
+        <input type="number" id="input__amount"/>
+        <button id="btn__add-transaction">Add transaction</button>
       </form>
 
-      Account summary
+      <h2>Account summary</h2>
       <ul></ul>
-      Filter by account:
-      <select></select>
+      <span>Filter by account:</span>
+      <select id="select__filter-account"></select>
+      <br />
       <table>
         <tr>
           <th>Id</th>
