@@ -21,31 +21,39 @@
   <body>
     <h1>myTrakr</h1>
     <main>
-      <form action="">
+      <form action="" method="post">
         <h2>New Account:</h2>
         <input type="text" id="input__account"/>
-        <button id="btn__add-account">Add new account</button>
+        <!-- <button id="btn__add-account">Add new account</button> -->
+        <input type="submit" id="btn__add-account" value="Add new account">
       </form>
       <form action="">
         <h2>New Transaction:</h2> 
         <span>Deposit</span>
-        <input type="radio" id="radio__deposit"/>
+        <input type="radio" id="radio__deposit" name="transaction" value="radio__deposit" checked="checked"/>
         <span>Withdraw</span>
-        <input type="radio" id="radio__withdraw"/>
+        <input type="radio" id="radio__withdraw" name="transaction" value="radio__withdraw"/>
         <span>Transfer</span>
-        <input type="radio" id="radio__transfer"/>
+        <input type="radio" id="radio__transfer" name="transaction" value="radio__transfer"/>
         <br />
-        <span>Account:</span>
-        <select id="select__account"></select>
-        <span>From:</span>
-        <select id="select__from"></select>
-        <span>To:</span>
-        <select id="select__to"></select>
-        <br />
+        <div id="account">
+          <span>Account:</span>
+          <select id="select__account"></select>
+        </div>
+        <div id="from_to" style="display:none">
+          <span>From:</span>
+          <select id="select__from"></select>
+          <span>To:</span>
+          <select id="select__to"></select>
+        </div>
         <span>Category:</span>
-        <select id="select__category"></select>
-        <input type="text" id="input__category"/>
-        <button type="button" id="btn__add-category">Add new category</button>
+        <select id="select__category" name="select__category">
+          <option value="select_category">Select category</option>
+          <option value="test">test</option>
+          <option value="add_new_category">Add new category</option> 
+        </select>
+        <input type="text" id="input__category" style="display:none" />
+        <button type="button" id="btn__add-category" style="display:none">Add new category</button>
         <br />
         <span>Description</span>
         <input type="text" id="input__description"/>
