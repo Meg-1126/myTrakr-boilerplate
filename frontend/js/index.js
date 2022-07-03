@@ -1,4 +1,6 @@
 $(document).ready(() => {
+
+  //ADD NEW ACCOUNT
   let accountName = [];
   
   // $("#btn__add-account").on("click", (e)=> {
@@ -27,10 +29,7 @@ $(document).ready(() => {
         data: JSON.stringify({username: 'name',}),
         dataType: 'json',
         contentType: "application/json; charset=utf-8",
-      }).done((data) => {
-          console.log('data ajax post', data);
-          alert(data + "added!");
-        });
+      });
        //get - reading data
        $.ajax({
         method: 'get',
@@ -50,7 +49,7 @@ $(document).ready(() => {
    //End of click event for add new account button
   });
 
-  // Transaction Form
+  // TRANSACTION RADIO BUTTON
   // Update fields by transaction type
   $("input[type=radio][name=transaction]").change(function(){
   
@@ -69,7 +68,7 @@ $(document).ready(() => {
     }
   });
 
-  //Category
+  //CATEGORY
   $("#select__category").change(function(){
     if($(this).val() === "add_new_category") {
       alert($(this).val());
@@ -79,6 +78,38 @@ $(document).ready(() => {
       $("#input__category").hide();
       $("#btn__add-category").hide();
     }
+  });
+
+  $("#btn__add-category").on("click", (e)=> {
+    e.preventDefault();
+    if ($("#input__category").val().length === 0 ) {
+      alert("You must enter a category name!");
+   } else {
+    let categoryVal = $("#input__category").val(); //Get input value for category
+    //post - sending data
+    // $.ajax({
+    //   url: 'http://localhost:3000/categories',
+    //   type: 'post',
+    //   data: JSON.stringify(data),
+    //   dataType: 'json',
+    //   contentType: "application/json; charset=utf-8",
+    //   success: function(result) {
+    //     alert(result.success);
+    //   },
+    // });
+    
+   }
+  });
+
+  //ADD NEW TRANSACTION
+  $("#btn__add-transaction").on("click", (e)=> {
+    e.preventDefault();
+    let amountVal = $("#input__amount").val();
+    if (amountVal <= 0) {
+      alert("Amount must be grater than 0!");
+    } else if (amountVal === NaN) {
+      alert("Enter a number!")
+    } 
   });
   
   
