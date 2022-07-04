@@ -6,15 +6,6 @@ $(document).ready(() => {
   // $("#btn__add-account").on("click", (e)=> {
   $("form").submit((e)=>{
     e.preventDefault();
-    //get - reading data
-    $.ajax({
-      method: 'get',
-      url: 'http://localhost:3000/accounts',
-      dataType: 'json',
-    }).done((data) => {
-      alert("get" + JSON.stringify(data));
-      console.log('data ajax get', data);
-    });
     //Validation for empty input & existing account
     if ($.inArray($("#input__account").val(), accountName) === -1) {
       if ($("#input__account").val().length === 0 ) {
@@ -26,10 +17,30 @@ $(document).ready(() => {
        $.ajax({
         url: 'http://localhost:3000/accounts',
         type: 'post',
-        data: JSON.stringify({username: 'name',}),
+        data: JSON.stringify(
+          {
+            newAccount:{
+              username: $("#input__account").val(),
+              transactions: []
+            }
+          }
+          ),
         dataType: 'json',
         contentType: "application/json; charset=utf-8",
+      }).done((data) => {
+        console.log('data ajax post', data);
+        const account = new Account(data);
+        console.log(account.username.username);
+        $("#select__account").append(`<option>${account.username.username}</option>`);
+        $("#select__from").append(`<option>${account.username.username}</option>`);
+        $("#select__to").append(`<option>${account.username.username}</option>`);
+        $("#select__filter-account").append(`<option>${account.username.username}</option>`);
+        $("#summary").append(`<li>User Name: ${account.username.username}</li>`);
+        $("#summary").append(`<li>Current Balance: ${account.username.transactions}</li>`);
+
+
       });
+      
        //get - reading data
        $.ajax({
         method: 'get',
@@ -86,17 +97,19 @@ $(document).ready(() => {
       alert("You must enter a category name!");
    } else {
     let categoryVal = $("#input__category").val(); //Get input value for category
-    //post - sending data
-    // $.ajax({
-    //   url: 'http://localhost:3000/categories',
-    //   type: 'post',
-    //   data: JSON.stringify(data),
-    //   dataType: 'json',
-    //   contentType: "application/json; charset=utf-8",
-    //   success: function(result) {
-    //     alert(result.success);
-    //   },
-    // });
+    $.ajax({
+      url: 'http://localhost:3000/categories',
+      type: 'post',
+      data: JSON.stringify({ newCategory:$("#input__category").val()}),
+      dataType: 'json',
+      contentType: "application/json; charset=utf-8",
+    }).done((data)=>{
+       console.log(data);
+      //  $("#select__category").append(`<option>${data.name}</option>`);
+      $(`<option>${data.name}</option>`).insertAfter("#select_category");
+       $("#input__category").hide();
+       $("#btn__add-category").hide();
+    });
     
    }
   });
