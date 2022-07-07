@@ -2,7 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import { addAccount, getAccounts } from './src/accounts.js';
-import { addTransaction } from './src/transactions.js';
+// import { addTransaction } from './src/transactions.js';
+import { addTransaction, getAllTransactions } from './src/transactions.js';
 import { addCategory, getCategories } from './src/categories.js';
 
 const app = express();
