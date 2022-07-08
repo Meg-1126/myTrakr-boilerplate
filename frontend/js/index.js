@@ -2,6 +2,7 @@ $(document).ready(() => {
 
   //ADD NEW ACCOUNT
   let accountName = [];
+  // let userId = [];
   
   // $("#btn__add-account").on("click", (e)=> {
   $("form").submit((e)=>{
@@ -33,10 +34,12 @@ $(document).ready(() => {
         console.log(account.username.username);
         console.log(account.username.id);
         let userId = account.username.id;
-        $("#select__account").append(`<option>${account.username.username}</option>`);
-        $("#select__from").append(`<option>${account.username.username}</option>`);
-        $("#select__to").append(`<option>${account.username.username}</option>`);
-        $("#select__filter-account").append(`<option>${account.username.username}</option>`);
+        
+        $("#select__account").append(`<option>${userId}: ${account.username.username}</option>`);
+        $("#select__from").append(`<option>${userId}: ${account.username.username}</option>`);
+        $("#select__to").append(`<option>${userId}: ${account.username.username}</option>`);
+        $("#select__filter-account").append(`<option>${userId}: ${account.username.username}</option>`);
+        $("#summary").append(`<li>User Id: ${userId}</li>`);
         $("#summary").append(`<li>User Name: ${account.username.username}</li>`);
         $("#summary").append(`<li>Current Balance: ${account.username.transactions}</li>`);
 
@@ -103,7 +106,6 @@ $(document).ready(() => {
       dataType: 'json',
       contentType: "application/json; charset=utf-8",
     }).done((data)=>{
-       console.log(data);
       //  $("#select__category").append(`<option>${data.name}</option>`);
       $(`<option value="new_category">${data.name}</option>`).insertAfter("#select_category");
        $("#input__category").hide();
@@ -118,14 +120,17 @@ $(document).ready(() => {
     e.preventDefault();
     let amountVal = $("#input__amount").val();
     let selectedCategory = $("#select__category option:selected").val();
-    // console.log(selectedOption);
+    let selectedCategoryPrint = $("#select__category option:selected").text();
     let selectedAccount = $("#select__account option:selected").val();
-    // console.log(accountOption);
+    let selectedFrom = $("#select__from option:selected").val();
     let selectedTransactionType = $("input[type='radio'][name='transaction']:checked").val();
-    // console.log(selectedTransactionType);
-   let from = $("#select__from option:selected").val();
-   let to = $("#select__to option:selected").val();
-   let currentBalance = 1000;
+    let selectedTransactionTypePrint = selectedTransactionType.split("__");
+    let from = $("#select__from option:selected").val();
+    let to = $("#select__to option:selected").val();
+    let currentBalance = 1000; //Need to change later
+    let selectedAccountId = selectedAccount.split(":");
+    let selectedFromId = from.split(":");
+    let selectedToId = to.split(":");
 
     if (amountVal <= 0) {
       alert("Amount must be grater than 0!");
@@ -191,12 +196,12 @@ $(document).ready(() => {
       data: JSON.stringify(
         {
           newTransaction: {
-            accountId:1,
-            accountIdFrom: from,
-            accountIdTo: to,
-            username: selectedAccount,
-            typeOfTransaction: selectedTransactionType,
-            category: selectedCategory,
+            accountId:(selectedTransactionType==="radio__transfer")?selectedFromId[0]:selectedAccountId[0],
+            accountIdFrom: (selectedTransactionType==="radio__transfer") ?selectedFromId[0] : "",
+            accountIdTo: (selectedTransactionType==="radio__transfer") ?selectedToId[0] : "",
+            username: (selectedTransactionType==="radio__transfer")?selectedFrom:selectedAccount,
+            typeOfTransaction: selectedTransactionTypePrint[1],
+            category: ((selectedCategory!=="select_category") && (selectedCategory!=="add_new_category"))?selectedCategoryPrint:"",
             description: $("#input__description").val(),
             amount: amountVal
           }
