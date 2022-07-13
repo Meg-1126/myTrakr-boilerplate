@@ -1,8 +1,10 @@
 $(document).ready(() => {
-
+  //==========================
   //ADD NEW ACCOUNT
+  //==========================
   let accountName = [];
   // let userId = [];
+  let currentBalance = 0;
   
   // $("#btn__add-account").on("click", (e)=> {
   $("form").submit((e)=>{
@@ -31,8 +33,6 @@ $(document).ready(() => {
       }).done((data) => {
         console.log('data ajax post', data);
         const account = new Account(data);
-        console.log(account.username.username);
-        console.log(account.username.id);
         let userId = account.username.id;
         
         $("#select__account").append(`<option>${userId}: ${account.username.username}</option>`);
@@ -41,9 +41,7 @@ $(document).ready(() => {
         $("#select__filter-account").append(`<option>${userId}: ${account.username.username}</option>`);
         $("#summary").append(`<li>User Id: ${userId}</li>`);
         $("#summary").append(`<li>User Name: ${account.username.username}</li>`);
-        $("#summary").append(`<li>Current Balance: ${account.username.transactions}</li>`);
-
-
+        $("#summary").append(`<li id="initial_balance">Current Balance: ${currentBalance}</li>`);
       });
       
        //get - reading data
@@ -53,6 +51,16 @@ $(document).ready(() => {
         dataType: 'json',
       }).done((data) => {
         console.log('data ajax get', data);
+        // $.each(data, function(i, val){
+        //   console.log(val.transactions);
+        //   if (val.transactions.length === 0) {
+        //     $("#summary").append(`<li id="initial_balance">Current Balance: 0</li>`);
+        //   } else if (val.transactions.length > 0) {
+        //       currentBalance.push(val.transactions);
+        //       console.log(currentBalance); 
+        //   }
+
+        // })
       });
      
      }
@@ -64,8 +72,9 @@ $(document).ready(() => {
   // });
    //End of click event for add new account button
   });
-
+  //==========================
   // TRANSACTION RADIO BUTTON
+  //==========================
   // Update fields by transaction type
   $("input[type=radio][name=transaction]").change(function(){
   
@@ -114,8 +123,9 @@ $(document).ready(() => {
     
    }
   });
-
+  //==========================
   //ADD NEW TRANSACTION
+  //==========================
   $("#btn__add-transaction").on("click", (e)=> {
     e.preventDefault();
     let amountVal = $("#input__amount").val();
@@ -127,7 +137,7 @@ $(document).ready(() => {
     let selectedTransactionTypePrint = selectedTransactionType.split("__");
     let from = $("#select__from option:selected").val();
     let to = $("#select__to option:selected").val();
-    let currentBalance = 1000; //Need to change later
+    // let currentBalance = 0; //Need to change later
     let selectedAccountId = selectedAccount.split(":");
     let selectedFromId = from.split(":");
     let selectedToId = to.split(":");
@@ -171,9 +181,16 @@ $(document).ready(() => {
         dataType: 'json',
       }).done((data) => {
         console.log('data ajax get', data);
-        if(data < amountVal) {
-          alert("You don't have enough balance");
-        } 
+        // $.each(data, function(i, val){
+        //   console.log(val.transactions);
+        //   if (val.transactions.length === 0) {
+        //     $("#summary").append(`<li id="initial_balance">Current Balance: 0</li>`);
+        //   } else if (val.transactions.length > 0) {
+        //       currentBalance.push(val.transactions);
+        //       console.log(currentBalance); 
+        //   }
+
+        // })
       });
     }
 
@@ -210,28 +227,83 @@ $(document).ready(() => {
       dataType: 'json',
       contentType: "application/json; charset=utf-8",
     }).done((data)=>{
-       console.log(data);
-       const transaction = new Transaction(data);
-       console.log(transaction);
+       console.log(data); //was able to get transaction data I sent
+       let transactionAmount=data[0].amount;
+       let transactionUser = data[0].username;
+       let inputAmount = data[0].amount;
+       let convertAmount = Number(inputAmount).toLocaleString();
+       console.log(transactionAmount);
+       console.log(transactionUser);
+       const transaction = new Transaction(transactionAmount, transactionUser);
+       console.log(transaction.amount);
+       console.log(transaction.account);
+       $("table").append(`
+       <tr>
+       <td>${data[0].accountId}</td>
+       <td>${data[0].username}</td>
+       <td>${data[0].typeOfTransaction}</td>
+       <td>${data[0].category}</td>
+       <td>${data[0].description}</td>
+       <td>${convertAmount}</td>
+       <td>${data[0].accountIdFrom}</td>
+       <td>${data[0].accountIdTo}</td>
+       </tr>
+       `);
+       
+       if (selectedTransactionType==="radio__deposit") {
+        $("#initial_balance").remove();
+        currentBalance += Number(inputAmount);
+        //remove current balance
+        if($("#update_balance").text()!== "") {
+          $("#update_balance").remove();
+        }
+        $("#summary").append(`<li id="update_balance">Current Balance: ${currentBalance}</li>`);
+       }
+       else if (selectedTransactionType==="radio__withdraw") {
+        $("#initial_balance").remove();
+        currentBalance -= Number(inputAmount);
+        //remove current balance
+        if($("#update_balance").text()!== "") {
+          $("#update_balance").remove();
+        }
+        $("#summary").append(`<li id="update_balance>Current Balance: ${currentBalance}</li>`);
+       }
+
+
+  //get - reading data of account
+    $.ajax({
+      method: 'get',
+      url: 'http://localhost:3000/accounts',
+      dataType: 'json',
+    }).done((data) => {
+      console.log('data ajax account info get', data);
     });
 
-    //get - reading data
+    });
+
+    //get - reading data of transaction
     $.ajax({
       method: 'get',
       url: 'http://localhost:3000/transactions',
       dataType: 'json',
     }).done((data) => {
       console.log('data ajax transaction get', data);
+      $.each(data, function(i, val){
+        console.log(val, i);
+
+      });
     });
 
-
-
-
-
   });//End of event for add transaction
-  
-  
-
+  //===================
+  // FILTER BY ACCOUNT
+  //===================
+   //iterate each obj and get amount
+      //find username which is selected in filter
+      //sum up the amount and create balance if each obj has same username
+  $("#select__filter-account").change(function(){
+      alert($(this).val()); //1: name
+  });//End of event for filtering table 
 
 
 }); //End of document get ready event
