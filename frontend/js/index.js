@@ -4,11 +4,9 @@ $(document).ready(() =>
   //ADD NEW ACCOUNT
   //==========================
   let accountName = [];
-  // let userId = [];
   let currentBalance = 0;
   let initialBalance = 0;
   
-  // $("#btn__add-account").on("click", (e)=> {
   $("form").submit((e) => {
     e.preventDefault();
     //Validation for empty input & existing account
@@ -49,47 +47,31 @@ $(document).ready(() =>
         $("#select__from").append(`<option>${userId}: ${account.username.username}</option>`);
         $("#select__to").append(`<option>${userId}: ${account.username.username}</option>`);
         $("#select__filter-account").append(`<option>${userId}: ${account.username.username}</option>`);
-        $("#summary").append(`<li>User Id: ${userId}</li>`);
-        $("#summary").append(`<li>User Name: ${account.username.username}</li>`);
-        $("#summary").append(`<li id="initial_balance">Current Balance: ${initialBalance}</li>`);
+        $("#summary").append(`
+        <div class="summary_box">
+        <li>User Id: ${userId}</li>
+        <li>User Name: ${account.username.username}</li>
+        <li id="initial_balance">Current Balance: ${initialBalance}</li>
+        </div>
+        `);
+        // $("#summary").append(`<li>User Name: ${account.username.username}</li>`);
+        // $("#summary").append(`<li id="initial_balance">Current Balance: ${initialBalance}</li>`);
+        // $("#summary").append(`<p>__________________</p>`);
 
         $("#input__account").val("");
         // $(`option[value=account${userId}]`).attr("selected","selected");
        });
-      
-       //get - reading data
-       $.ajax({
-        method: 'get',
-        url: 'http://localhost:3000/accounts',
-        dataType: 'json',
-       }).done((data) => 
-        {
-         console.log('data ajax get', data);
-        // $.each(data, function(i, val){
-        //   console.log(val.transactions);
-        //   if (val.transactions.length === 0) {
-        //     $("#summary").append(`<li id="initial_balance">Current Balance: 0</li>`);
-        //   } else if (val.transactions.length > 0) {
-        //       currentBalance.push(val.transactions);
-        //       console.log(currentBalance); 
-        //   }
-
-        // })
-        });
-     
       }
     } 
     else 
     {
       alert("Error: Account name already exists");
     }
-
-    if ($("#summary").text() !== "") 
-    {
-      $("#summary li").hide();
-    } 
-    
-   // });
+    //hide former summary??
+    // if ($("#summary").text() !== "") 
+    // {
+    //   $("#summary li").hide();
+    // } 
    //End of click event for add new account button
   });
   //==========================
@@ -98,7 +80,6 @@ $(document).ready(() =>
   // Update fields by transaction type
   $("input[type=radio][name=transaction]").change(function()
   {
-  
     if(this.value === "radio__deposit") 
     {
       $("#from_to").hide();
@@ -169,174 +150,146 @@ $(document).ready(() =>
     let selectedAccountId = selectedAccount.split(":");
     let selectedFromId = from.split(":");
     let selectedToId = to.split(":");
+    let selectedFromName = selectedFromId[1];
+    let selectedToName = selectedToId[1];
 
-    if (amountVal <= 0) 
-    {
-      alert("Amount must be grater than 0!");
-    } 
-    //Category validation
-    if (selectedCategory==="select_category" || selectedCategory==="add_new_category") 
-    {
-      alert("You are selecting wrong category!");
-    } 
-    else
-    {
-      alert("Success");
-        //then, send data to server
-    }
-    //Account name validation
-    if(selectedAccount === undefined)
-    {
-     alert("You must select the account name!")
-    } 
-    else 
-    {
-      alert("Name: " + selectedAccount + " is selected");
-    }
-    //Radio button validation
-    if(selectedTransactionType === "radio__withdraw")
-    {
-       alert("withdraw is selected");
-       if(currentBalance < amountVal) {
-        alert("You don't have enough balance");
-      } 
-      else 
-      {
-        alert("current balance: "+currentBalance + ", input amount: "+amountVal);
-      }
-    } 
-    else if (selectedTransactionType === "radio__transfer") 
-    {
-      if(from === undefined || to === undefined)
-      {
-        alert("From and To required");
-      } else if (from === to) 
-      {
-        alert("Transfer error: Choose different account");
-      }
-      $.ajax({
-        method: 'get',
-        url: 'http://localhost:3000/accounts',
-        dataType: 'json',
-      }).done((data) => 
-      {
-        console.log('data ajax get', data);
-      });
-    }
-
-    $.ajax({
-      method: 'get',
-      url: 'http://localhost:3000/accounts',
-      dataType: 'json',
-    }).done((data) => 
-    {
-      console.log('data ajax get', data);
-      //Filter username which has the same name as selectedAccount
-      //Access id for the username
-      //Insert the id as a value of accountId property
-    });
+        //引き出しか送金取引選択時に
+         if (selectedTransactionType!=="radio__deposit") 
+         {
+          $.ajax({
+            method: 'get',
+            url: 'http://localhost:3000/accounts',
+            dataType: 'json',
+           }).done((data) => 
+           {
+              console.log(data);
+             for (let i = 0; i < data.length; i++) 
+             {
+              if (data[i].id == Number(selectedAccountId[0]))
+              {
+                let numOfTransactions = data[i].transactions.length;
+                let c = 0;
+                 //iterate transactions obj for selected account
+                 for (let j = 0; j < numOfTransactions; j++) 
+                 {
+                  if (data[i].transactions[j].typeOfTransaction == "deposit") {
+                    c += Number(data[i].transactions[j].amount);
+                  }else if (data[i].transactions[j].typeOfTransaction != "deposit") {
+                    c -= Number(data[i].transactions[j].amount);
+                  }
+                 }
+                 //残高がマイナスであるなら
+                console.log(c);
+                if (c < amountVal) 
+                 {
+                 alert("Not enough balance for transaction");
+                 }
+              }
+             }
+           });
+         }
+         else if (amountVal <= 0) 
+         {
+           alert("Amount must be grater than 0!");
+         } 
+         //Category validation
+         else if (selectedCategory==="select_category" || selectedCategory==="add_new_category") 
+         {
+           alert("You must add & select category!");
+         } 
+         //Radio button validation
+         else if (selectedTransactionType === "radio__transfer") 
+         {
+           if(from === undefined || to === undefined)
+           {
+             alert("From and To required");
+           } else if (from === to) 
+           {
+             alert("Transfer error: Choose different account");
+           } 
+           
+         } 
+         else
+         {
+           //post data to transaction server
+          $.ajax({
+          url: 'http://localhost:3000/transaction',
+          type: 'post',
+          data: JSON.stringify
+          (
+           {
+             newTransaction: {
+               accountId:(selectedTransactionType==="radio__transfer")?selectedFromId[0]:selectedAccountId[0],
+               accountIdFrom: (selectedTransactionType==="radio__transfer") ?selectedFromId[0] : "",
+               accountIdFromName: (selectedTransactionType==="radio__transfer") ?selectedFromId[1] : "",
+               accountIdTo: (selectedTransactionType==="radio__transfer") ?selectedToId[0] : "",
+               accountIdToName: (selectedTransactionType==="radio__transfer") ?selectedToId[1] : "",
+               username: (selectedTransactionType==="radio__transfer")?selectedFrom:selectedAccount,
+               typeOfTransaction: selectedTransactionTypePrint[1],
+               category: ((selectedCategory!=="select_category") && (selectedCategory!=="add_new_category"))?selectedCategoryPrint:"",
+               description: $("#input__description").val(),
+               amount: amountVal
+             }
+           }
+          ),
+          dataType: 'json',
+          contentType: "application/json; charset=utf-8",
+          }).done((data)=> 
+          {
+           console.log(data); //was able to get transaction data I sent
+           let transactionAmount=data[0].amount; //currentTransactionAmount
+           console.log(transactionAmount);
+           // let transactionUser = data[0].username;
+           let inputAmount = data[0].amount;
+           let convertAmount = Number(inputAmount).toLocaleString();
+           
+              
+               $("table").append(`
+               <tr>
+               <td>${data[0].accountId}</td>
+               <td id="td__username">${data[0].username}</td>
+               <td>${data[0].typeOfTransaction}</td>
+               <td>${data[0].category}</td>
+               <td>${data[0].description}</td>
+               <td>${convertAmount}</td>
+               <td id="td__userFrom">${data[0].accountIdFromName}</td>
+               <td>${data[0].accountIdToName}</td>
+               </tr>
+               `);
+             
+           
+             //Update account summary
+            // if (selectedTransactionType==="radio__deposit") 
+            //  {
+            //   $("#initial_balance").remove();
+            //   currentBalance += Number(inputAmount);
+            //   if($("#update_balance").text()!== "") {
+            //    $("#update_balance").remove();
+            //   }
+            //   $("#summary").append(`<li id="update_balance">Current Balance: ${currentBalance}</li>`);
+            //  } else  
+            //  {
+            //    $("#initial_balance").remove();
+            //    currentBalance -= Number(inputAmount);
+            //    if($("#update_balance").text()!== "") {
+            //      $("#update_balance").remove();
+            //    }
+            //    $("#summary").append(`<li id="update_balance">Current Balance: ${currentBalance}</li>`);
+            //  }
+           // }
+          }); //end of event after posting transaction
+     
+          //Clear input
+          $("#input__description").val("");
+          $("#input__amount").val("");
+        }   
     
-    //Send the new transaction
-    $.ajax({
-      url: 'http://localhost:3000/transaction',
-      type: 'post',
-      data: JSON.stringify
-      (
-        {
-          newTransaction: {
-            accountId:(selectedTransactionType==="radio__transfer")?selectedFromId[0]:selectedAccountId[0],
-            accountIdFrom: (selectedTransactionType==="radio__transfer") ?selectedFromId[0] : "",
-            accountIdTo: (selectedTransactionType==="radio__transfer") ?selectedToId[0] : "",
-            username: (selectedTransactionType==="radio__transfer")?selectedFrom:selectedAccount,
-            typeOfTransaction: selectedTransactionTypePrint[1],
-            category: ((selectedCategory!=="select_category") && (selectedCategory!=="add_new_category"))?selectedCategoryPrint:"",
-            description: $("#input__description").val(),
-            amount: amountVal
-          }
-        }
-      ),
-      dataType: 'json',
-      contentType: "application/json; charset=utf-8",
-    }).done((data)=> 
-    {
-       console.log(data); //was able to get transaction data I sent
-       let transactionAmount=data[0].amount;
-       let transactionUser = data[0].username;
-       let inputAmount = data[0].amount;
-       let convertAmount = Number(inputAmount).toLocaleString();
-       const transaction = new Transaction(transactionAmount, transactionUser);
-
-       if ((selectedTransactionType==="radio__withdraw") &&(currentBalance < inputAmount)) {
-        alert("You don't have enough balance!");
-      } else {
-        $("table").append(`
-        <tr>
-        <td>${data[0].accountId}</td>
-        <td>${data[0].username}</td>
-        <td>${data[0].typeOfTransaction}</td>
-        <td>${data[0].category}</td>
-        <td>${data[0].description}</td>
-        <td>${convertAmount}</td>
-        <td>${data[0].accountIdFrom}</td>
-        <td>${data[0].accountIdTo}</td>
-        </tr>
-        `);
-      }
-    
-       if (selectedTransactionType==="radio__deposit") {
-        $("#initial_balance").remove();
-        currentBalance += Number(inputAmount);
-        if($("#update_balance").text()!== "") {
-          $("#update_balance").remove();
-        }
-        $("#summary").append(`<li id="update_balance">Current Balance: ${currentBalance}</li>`);
-       } else if (selectedTransactionType==="radio__withdraw") {
-        if (currentBalance <= 0 || currentBalance < inputAmount) {
-          alert("You don't have enough balance!");
-        } else {
-          $("#initial_balance").remove();
-          currentBalance -= Number(inputAmount);
-          if($("#update_balance").text()!== "") {
-            $("#update_balance").remove();
-          }
-          $("#summary").append(`<li id="update_balance">Current Balance: ${currentBalance}</li>`);
-        }
-       }
-
-
-    //get - reading data of account
-    // $.ajax({
-    //   method: 'get',
-    //   url: 'http://localhost:3000/accounts',
-    //   dataType: 'json',
-    // }).done((data) => {
-    //   console.log('data ajax account info get', data);
-    // });
-
-    });
-
-    //get - reading data of transaction
-    // $.ajax({
-    //   method: 'get',
-    //   url: 'http://localhost:3000/transactions',
-    //   dataType: 'json',
-    // }).done((data) => {
-    //   console.log('data ajax transaction get', data);
-    //   $.each(data, function(i, val){
-    //     console.log(val, i);
-
-    //   });
-    // });
-
-    //Clear input
-    $("#input__description").val("");
-    $("#input__amount").val("");
-  });//End of event for add transaction
+ });//End of event for add transaction
+ 
   //===================
   //EVENT FOR ACCOUNT SELECTION
   //===================
   // if selectedAccount is changed, hide account summary which is not selected
-
   $("#select__account").change(function(){
     // $(this).val() = account00
     //get transactions data from server
@@ -346,16 +299,7 @@ $(document).ready(() =>
       dataType: 'json',
     }).done((data) => {
       console.log('data ajax transaction get', data);
-      //remove and apend again
-      // $("#summary li").remove();
-      // $("#summary").append(`<li>User Id: ${userId}</li>`);
-      //     $("#summary").append(`<li>User Name: ${account.username.username}</li>`);
-      //     $("#summary").append(`<li id="initial_balance">Current Balance: ${initialBalance}</li>`);
-      //     $(`option[value=account${userId}]`).attr("selected","selected");
-     
     });
-    
-   
   });//end event for changing account
 
   //===================

@@ -18,6 +18,10 @@ main {
   padding: 30px;
 }
 
+td {
+  text-align: center;
+}
+
 th {
   /* display: block; */
   border: 1px solid white;
@@ -26,9 +30,10 @@ th {
   color: white;
 }
 
-/* tr {
-  display: block;
-} */
+tr {
+  background-color: white;
+  border-bottom: 1px dotted #686984;
+}
 
 ul {
   list-style: none;
@@ -52,4 +57,18 @@ ul {
 #input__account {
   width: 20rem;
   padding: 5px;
+}
+
+#summary {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.summary_box {
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px 1px rgb(215, 215, 215);
+  background-color: white;
+  margin: 5px;
+  padding: 10px;
+  width: 300px;
 }
