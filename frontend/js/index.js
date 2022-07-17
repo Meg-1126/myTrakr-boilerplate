@@ -308,37 +308,44 @@ $(document).ready(() =>
                }).done((data) => 
                {
                   console.log(data);
-                 for (let i = 0; i < data.length; i++) 
-                 {
-                  if (data[i].id == Number(selectedAccountId[0]))
-                  { 
-                    let numOfTransactions = data[i].transactions.length;
+                  let selectingId = Number(selectedAccountId[0]);
+                  console.log(selectingId);
+                  // find username or id
+                  let obj = data.find(elem => elem.id === selectingId);
+                  console.log(obj);
+                  //********rewrite below using obj
+                //  for (let i = 0; i < data.length; i++) 
+                //  {
+                  // if (data[i].id == selectingId)
+                  // { 
+                    // let numOfTransactions = data[i].transactions.length;
+                    let numOfTransactions = obj.transactions.length;
                     let updateBalance = 0;
                     let b = 0;
                     //iterate transactions obj for selected account
                     for (let j = 0; j < numOfTransactions; j++) 
                     {
-                        if (data[i].transactions[j].typeOfTransaction === "deposit") 
+                        if (obj.transactions[j].typeOfTransaction === "deposit") 
                         {
-                          updateBalance += Number(data[i].transactions[j].amount);
-                        } else if (data[i].transactions[j].typeOfTransaction !== "deposit")
+                          updateBalance += Number(obj.transactions[j].amount);
+                        } else if (obj.transactions[j].typeOfTransaction !== "deposit")
                         {
-                          updateBalance -= Number(data[i].transactions[j].amount);
+                          updateBalance -= Number(obj.transactions[j].amount);
                         }
                       
                       console.log(updateBalance);
                     }
-                    //update current balance
-                    if($("#update_balance")!=="") {
-                      $("#initial_balance").remove();
-                      $("#update_balance").remove();
-                      $(`.summary_${data[i].username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
+                    //Update current balance
+                    if($(`.summary_${obj.username} #update_balance`)!=="") {
+                      $(`.summary_${obj.username} #initial_balance`).remove();
+                      $(`.summary_${obj.username} #update_balance`).remove();
+                      $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
                     } else {
-                      $("#initial_balance").remove();
-                      $(`.summary_${data[i].username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
+                      $(`.summary_${obj.username} #initial_balance`).remove();
+                      $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
                     }
-                  }
-                 }
+                  // }
+                //  }
                });
              
             }); //end of posting transaction
