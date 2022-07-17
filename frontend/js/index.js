@@ -1,11 +1,11 @@
 $(document).ready(() => 
 {
-  //==========================
-  //ADD NEW ACCOUNT
-  //==========================
   let accountName = [];
   let currentBalance = 0;
   let initialBalance = 0;
+  //==========================
+  //ADD NEW ACCOUNT
+  //==========================
   
   $("form").submit((e) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ $(document).ready(() =>
         $("#select__to").append(`<option>${userId}: ${account.username.username}</option>`);
         $("#select__filter-account").append(`<option>${userId}: ${account.username.username}</option>`);
         $("#summary").append(`
-        <div class="summary_box">
+        <div class="summary_${account.username.username}">
         <li>User Id: ${userId}</li>
         <li>User Name: ${account.username.username}</li>
         <li id="initial_balance">Current Balance: ${initialBalance}</li>
@@ -67,11 +67,6 @@ $(document).ready(() =>
     {
       alert("Error: Account name already exists");
     }
-    //hide former summary??
-    // if ($("#summary").text() !== "") 
-    // {
-    //   $("#summary li").hide();
-    // } 
    //End of click event for add new account button
   });
   //==========================
@@ -126,6 +121,7 @@ $(document).ready(() =>
       contentType: "application/json; charset=utf-8",
      }).done((data)=> 
      {
+      alert(`New category "${data.name}" has been added.`);
        $(`<option value="new_category">${data.name}</option>`).insertAfter("#select_category");
        $("#input__category").hide();
        $("#btn__add-category").hide();
@@ -138,7 +134,8 @@ $(document).ready(() =>
   $("#btn__add-transaction").on("click", (e)=> 
   {
     e.preventDefault();
-    let amountVal = $("#input__amount").val();
+    let amountVal = $("#input__amount").val(); //string
+    let inputVal = Number(amountVal);
     let selectedCategory = $("#select__category option:selected").val();
     let selectedCategoryPrint = $("#select__category option:selected").text();
     let selectedAccount = $("#select__account option:selected").val();
@@ -150,45 +147,43 @@ $(document).ready(() =>
     let selectedAccountId = selectedAccount.split(":");
     let selectedFromId = from.split(":");
     let selectedToId = to.split(":");
-    let selectedFromName = selectedFromId[1];
-    let selectedToName = selectedToId[1];
+    
 
-        //引き出しか送金取引選択時に
-         if (selectedTransactionType!=="radio__deposit") 
-         {
-          $.ajax({
-            method: 'get',
-            url: 'http://localhost:3000/accounts',
-            dataType: 'json',
-           }).done((data) => 
-           {
-              console.log(data);
-             for (let i = 0; i < data.length; i++) 
-             {
-              if (data[i].id == Number(selectedAccountId[0]))
-              {
-                let numOfTransactions = data[i].transactions.length;
-                let c = 0;
-                 //iterate transactions obj for selected account
-                 for (let j = 0; j < numOfTransactions; j++) 
-                 {
-                  if (data[i].transactions[j].typeOfTransaction == "deposit") {
-                    c += Number(data[i].transactions[j].amount);
-                  }else if (data[i].transactions[j].typeOfTransaction != "deposit") {
-                    c -= Number(data[i].transactions[j].amount);
-                  }
-                 }
-                 //残高がマイナスであるなら
-                console.log(c);
-                if (c < amountVal) 
-                 {
-                 alert("Not enough balance for transaction");
-                 }
-              }
-             }
-           });
-         }
-         else if (amountVal <= 0) 
+        //Validation before posting new transaction
+          // $.ajax({
+          //   method: 'get',
+          //   url: 'http://localhost:3000/accounts',
+          //   dataType: 'json',
+          //  }).done((data) => 
+          //  {
+          //   alert("ajax account data pulled");
+          //     console.log(data);
+          //    for (let i = 0; i < data.length; i++) 
+          //    {
+          //     if (data[i].id == Number(selectedAccountId[0]))
+          //     {
+          //       let numOfTransactions = data[i].transactions.length;
+          //       let c = 0;
+          //        //iterate transactions obj for selected account
+          //        for (let j = 0; j < numOfTransactions; j++) 
+          //        {
+          //         if (data[i].transactions[j].typeOfTransaction == "deposit") {
+          //           c += Number(data[i].transactions[j].amount);
+          //         }else if (data[i].transactions[j].typeOfTransaction != "deposit") {
+          //           c -= Number(data[i].transactions[j].amount);
+          //         }
+          //        }
+          //        //残高がマイナスであるなら
+          //       console.log(c);
+          //       if ((selectedTransactionType!=="radio__deposit")&&(c < inputVal)) 
+          //        {
+          //        alert("Not enough balance for transaction");
+          //        }
+          //     }
+          //    }
+          //  });
+         
+         if (inputVal <= 0) 
          {
            alert("Amount must be grater than 0!");
          } 
@@ -197,93 +192,164 @@ $(document).ready(() =>
          {
            alert("You must add & select category!");
          } 
-         //Radio button validation
-         else if (selectedTransactionType === "radio__transfer") 
+         //Radio transfer validation
+         else if ((selectedTransactionType === "radio__transfer")&&(from === undefined || to === undefined)) 
          {
-           if(from === undefined || to === undefined)
-           {
-             alert("From and To required");
-           } else if (from === to) 
-           {
-             alert("Transfer error: Choose different account");
-           } 
-           
+            alert("From and To required");
+         } else if ((selectedTransactionType === "radio__transfer")&&(from === to)) 
+         {
+             alert("Transfer error: Choose different account"); 
          } 
          else
          {
-           //post data to transaction server
+          let isEnoughBalance = false; 
           $.ajax({
-          url: 'http://localhost:3000/transaction',
-          type: 'post',
-          data: JSON.stringify
-          (
+            method: 'get',
+            url: 'http://localhost:3000/accounts',
+            dataType: 'json',
+           }).done((data) => 
            {
-             newTransaction: {
-               accountId:(selectedTransactionType==="radio__transfer")?selectedFromId[0]:selectedAccountId[0],
-               accountIdFrom: (selectedTransactionType==="radio__transfer") ?selectedFromId[0] : "",
-               accountIdFromName: (selectedTransactionType==="radio__transfer") ?selectedFromId[1] : "",
-               accountIdTo: (selectedTransactionType==="radio__transfer") ?selectedToId[0] : "",
-               accountIdToName: (selectedTransactionType==="radio__transfer") ?selectedToId[1] : "",
-               username: (selectedTransactionType==="radio__transfer")?selectedFrom:selectedAccount,
-               typeOfTransaction: selectedTransactionTypePrint[1],
-               category: ((selectedCategory!=="select_category") && (selectedCategory!=="add_new_category"))?selectedCategoryPrint:"",
-               description: $("#input__description").val(),
-               amount: amountVal
-             }
-           }
-          ),
-          dataType: 'json',
-          contentType: "application/json; charset=utf-8",
-          }).done((data)=> 
-          {
-           console.log(data); //was able to get transaction data I sent
-           let transactionAmount=data[0].amount; //currentTransactionAmount
-           console.log(transactionAmount);
-           // let transactionUser = data[0].username;
-           let inputAmount = data[0].amount;
-           let convertAmount = Number(inputAmount).toLocaleString();
-           
-              
-               $("table").append(`
-               <tr>
-               <td>${data[0].accountId}</td>
-               <td id="td__username">${data[0].username}</td>
-               <td>${data[0].typeOfTransaction}</td>
-               <td>${data[0].category}</td>
-               <td>${data[0].description}</td>
-               <td>${convertAmount}</td>
-               <td id="td__userFrom">${data[0].accountIdFromName}</td>
-               <td>${data[0].accountIdToName}</td>
-               </tr>
-               `);
+            //  alert("ajax account data pulled");
+              console.log(data);
+              let c = 0;
              
-           
-             //Update account summary
-            // if (selectedTransactionType==="radio__deposit") 
-            //  {
-            //   $("#initial_balance").remove();
-            //   currentBalance += Number(inputAmount);
-            //   if($("#update_balance").text()!== "") {
-            //    $("#update_balance").remove();
-            //   }
-            //   $("#summary").append(`<li id="update_balance">Current Balance: ${currentBalance}</li>`);
-            //  } else  
-            //  {
-            //    $("#initial_balance").remove();
-            //    currentBalance -= Number(inputAmount);
-            //    if($("#update_balance").text()!== "") {
-            //      $("#update_balance").remove();
-            //    }
-            //    $("#summary").append(`<li id="update_balance">Current Balance: ${currentBalance}</li>`);
-            //  }
-           // }
-          }); //end of event after posting transaction
-     
-          //Clear input
-          $("#input__description").val("");
-          $("#input__amount").val("");
-        }   
-    
+             for (let i = 0; i < data.length; i++) 
+             {
+              if (data[i].id == Number(selectedAccountId[0]))
+              {
+                let numOfTransactions = data[i].transactions.length;
+                 //iterate transactions obj for selected account
+                 for (let j = 0; j < numOfTransactions; j++) 
+                 {
+                  if (data[i].transactions[j].typeOfTransaction == "deposit")
+                  {
+                    c += Number(data[i].transactions[j].amount);
+                  } else if (data[i].transactions[j].typeOfTransaction != "deposit") 
+                  {
+                    c -= Number(data[i].transactions[j].amount);
+                  }
+                 }
+                }
+              } //end of for loop for accounts object
+              //残高がマイナスであるなら
+             console.log(c);
+             if ((selectedTransactionType!=="radio__deposit")&&(c < inputVal)) 
+              {
+              alert("Not enough balance for transaction");
+              isEnoughBalance = false;
+              } else {
+              isEnoughBalance = true;
+              }
+           console.log(isEnoughBalance);
+          if ((isEnoughBalance === true)||(selectedTransactionType==="radio__deposit")) //post new transaction
+          {
+            alert(`Add new transaction (${selectedTransactionTypePrint[1]})`);
+            $.ajax({
+            url: 'http://localhost:3000/transaction',
+            type: 'post',
+            data: JSON.stringify
+            (
+             {
+               newTransaction: {
+                 accountId:(selectedTransactionType==="radio__transfer")?selectedFromId[0]:selectedAccountId[0],
+                 accountIdFrom: (selectedTransactionType==="radio__transfer") ?selectedFromId[0] : "",
+                 accountIdFromName: (selectedTransactionType==="radio__transfer") ?selectedFromId[1] : "",
+                 accountIdTo: (selectedTransactionType==="radio__transfer") ?selectedToId[0] : "",
+                 accountIdToName: (selectedTransactionType==="radio__transfer") ?selectedToId[1] : "",
+                 username: (selectedTransactionType==="radio__transfer")?selectedFrom:selectedAccount,
+                 typeOfTransaction: selectedTransactionTypePrint[1],
+                 category: ((selectedCategory!=="select_category") && (selectedCategory!=="add_new_category"))?selectedCategoryPrint:"",
+                 description: $("#input__description").val(),
+                 amount: inputVal
+               }
+             }
+            ),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            }).done((data)=> 
+            {
+             let inputAmount = data[0].amount;
+             let convertAmount = Number(inputAmount).toLocaleString();
+
+             if (selectedTransactionType!=="radio__transfer") {
+              $("table").append(`
+              <tr>
+              <td>${data[0].accountId}</td>
+              <td id="td__username">${data[0].username}</td>
+              <td>${data[0].typeOfTransaction}</td>
+              <td>${data[0].category}</td>
+              <td>${data[0].description}</td>
+              <td>${convertAmount}</td>
+              <td id="td__userFrom">---</td>
+              <td>---</td>
+              </tr>
+              `);
+             } else 
+             {
+              $("table").append(`
+              <tr>
+              <td>---</td>
+              <td id="td__username">---</td>
+              <td>${data[0].typeOfTransaction}</td>
+              <td>${data[0].category}</td>
+              <td>${data[0].description}</td>
+              <td>${convertAmount}</td>
+              <td id="td__userFrom">${data[0].accountIdFromName}</td>
+              <td>${data[0].accountIdToName}</td>
+              </tr>
+              `);
+             }
+                 
+               //Update account summary with new transaction 
+               $.ajax({
+                method: 'get',
+                url: 'http://localhost:3000/accounts',
+                dataType: 'json',
+               }).done((data) => 
+               {
+                  console.log(data);
+                 for (let i = 0; i < data.length; i++) 
+                 {
+                  if (data[i].id == Number(selectedAccountId[0]))
+                  { 
+                    let numOfTransactions = data[i].transactions.length;
+                    let updateBalance = 0;
+                    let b = 0;
+                    //iterate transactions obj for selected account
+                    for (let j = 0; j < numOfTransactions; j++) 
+                    {
+                        if (data[i].transactions[j].typeOfTransaction === "deposit") 
+                        {
+                          updateBalance += Number(data[i].transactions[j].amount);
+                        } else if (data[i].transactions[j].typeOfTransaction !== "deposit")
+                        {
+                          updateBalance -= Number(data[i].transactions[j].amount);
+                        }
+                      
+                      console.log(updateBalance);
+                    }
+                    //update current balance
+                    if($("#update_balance")!=="") {
+                      $("#initial_balance").remove();
+                      $("#update_balance").remove();
+                      $(`.summary_${data[i].username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
+                    } else {
+                      $("#initial_balance").remove();
+                      $(`.summary_${data[i].username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
+                    }
+                  }
+                 }
+               });
+             
+            }); //end of posting transaction
+          }
+          
+        });//end of get method for accounts server data
+       }  //end of else 
+        
+        //Clear input
+        $("#input__description").val("");
+        $("#input__amount").val("");
  });//End of event for add transaction
  
   //===================
