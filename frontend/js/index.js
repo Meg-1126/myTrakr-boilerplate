@@ -6,7 +6,6 @@ $(document).ready(() =>
   //==========================
   //ADD NEW ACCOUNT
   //==========================
-  
   $("form").submit((e) => {
     e.preventDefault();
     //Validation for empty input & existing account
@@ -54,12 +53,8 @@ $(document).ready(() =>
         <li id="initial_balance">Current Balance: ${initialBalance}</li>
         </div>
         `);
-        // $("#summary").append(`<li>User Name: ${account.username.username}</li>`);
-        // $("#summary").append(`<li id="initial_balance">Current Balance: ${initialBalance}</li>`);
-        // $("#summary").append(`<p>__________________</p>`);
-
+        
         $("#input__account").val("");
-        // $(`option[value=account${userId}]`).attr("selected","selected");
        });
       }
     } 
@@ -150,38 +145,7 @@ $(document).ready(() =>
     
 
         //Validation before posting new transaction
-          // $.ajax({
-          //   method: 'get',
-          //   url: 'http://localhost:3000/accounts',
-          //   dataType: 'json',
-          //  }).done((data) => 
-          //  {
-          //   alert("ajax account data pulled");
-          //     console.log(data);
-          //    for (let i = 0; i < data.length; i++) 
-          //    {
-          //     if (data[i].id == Number(selectedAccountId[0]))
-          //     {
-          //       let numOfTransactions = data[i].transactions.length;
-          //       let c = 0;
-          //        //iterate transactions obj for selected account
-          //        for (let j = 0; j < numOfTransactions; j++) 
-          //        {
-          //         if (data[i].transactions[j].typeOfTransaction == "deposit") {
-          //           c += Number(data[i].transactions[j].amount);
-          //         }else if (data[i].transactions[j].typeOfTransaction != "deposit") {
-          //           c -= Number(data[i].transactions[j].amount);
-          //         }
-          //        }
-          //        //残高がマイナスであるなら
-          //       console.log(c);
-          //       if ((selectedTransactionType!=="radio__deposit")&&(c < inputVal)) 
-          //        {
-          //        alert("Not enough balance for transaction");
-          //        }
-          //     }
-          //    }
-          //  });
+         
          
          if (inputVal <= 0) 
          {
@@ -212,26 +176,29 @@ $(document).ready(() =>
             //  alert("ajax account data pulled");
               console.log(data);
               let c = 0;
-             
-             for (let i = 0; i < data.length; i++) 
-             {
-              if (data[i].id == Number(selectedAccountId[0]))
-              {
-                let numOfTransactions = data[i].transactions.length;
+              let selectingId = Number(selectedAccountId[0]);
+              let selectedObj = data.find(elem => elem.id === selectingId);
+              console.log(selectedObj);
+              let numOfTransactions = selectedObj.transactions.length;
+              
+            //  for (let i = 0; i < data.length; i++) 
+            //  {
+              // if (data[i].id == Number(selectedAccountId[0]))
+              // {
+                // let numOfTransactions = data[i].transactions.length;
                  //iterate transactions obj for selected account
-                 for (let j = 0; j < numOfTransactions; j++) 
+                 for (let i = 0; i < numOfTransactions; i++) 
                  {
-                  if (data[i].transactions[j].typeOfTransaction == "deposit")
+                  if (selectedObj.transactions[i].typeOfTransaction == "deposit")
                   {
-                    c += Number(data[i].transactions[j].amount);
-                  } else if (data[i].transactions[j].typeOfTransaction != "deposit") 
+                    c += Number(selectedObj.transactions[i].amount);
+                  } else if (selectedObj.transactions[i].typeOfTransaction != "deposit") 
                   {
-                    c -= Number(data[i].transactions[j].amount);
+                    c -= Number(selectedObj.transactions[i].amount);
                   }
                  }
-                }
-              } //end of for loop for accounts object
-              //残高がマイナスであるなら
+                // }
+              // } //end of for loop for accounts object
              console.log(c);
              if ((selectedTransactionType!=="radio__deposit")&&(c < inputVal)) 
               {
@@ -309,36 +276,72 @@ $(document).ready(() =>
                {
                   console.log(data);
                   let selectingId = Number(selectedAccountId[0]);
-                  console.log(selectingId);
-                  // find username or id
+                  let selectingIdTo = Number(selectedToId[0]);
+                  console.log(selectingIdTo);
                   let obj = data.find(elem => elem.id === selectingId);
                   console.log(obj);
+                  let objTo = data.find(elem => elem.id === selectingIdTo);
+                  console.log(objTo);
                     let numOfTransactions = obj.transactions.length;
+                    let numOfTransactionsTo = objTo.transactions.length;
                     let updateBalance = 0;
-                    let b = 0;
-                    
+                    let updateBalanceTo = 0;
+                    let sendAmount = 0;
+
                     //iterate transactions obj for selected account
                     for (let j = 0; j < numOfTransactions; j++) 
                     {
                         if (obj.transactions[j].typeOfTransaction === "deposit") 
                         {
                           updateBalance += Number(obj.transactions[j].amount);
-                        } else if (obj.transactions[j].typeOfTransaction !== "deposit")
+                        } else if (obj.transactions[j].typeOfTransaction === "withdraw")
                         {
                           updateBalance -= Number(obj.transactions[j].amount);
+                        } else {
+                          updateBalance -= Number(obj.transactions[j].amount);
+                          sendAmount += Number(obj.transactions[j].amount);
                         }
                       
                       console.log(updateBalance);
-                    }
-                    //Update current balance
+                      console.log(sendAmount);
+                      //Update current balance
                     if($(`.summary_${obj.username} #update_balance`)!=="") {
                       $(`.summary_${obj.username} #initial_balance`).remove();
                       $(`.summary_${obj.username} #update_balance`).remove();
                       $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
-                    } else {
+                    } else if($(`.summary_${obj.username} #update_balance`)==="")
+                    {
                       $(`.summary_${obj.username} #initial_balance`).remove();
                       $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
                     }
+                    }
+                    
+                      for (let k = 0; k < numOfTransactionsTo; k++) 
+                      {
+                          if (objTo.transactions[k].typeOfTransaction === "deposit") 
+                          {
+                            updateBalanceTo += Number(objTo.transactions[k].amount);
+                          } else if (objTo.transactions[k].typeOfTransaction !== "deposit")
+                          {
+                            updateBalanceTo -= Number(objTo.transactions[k].amount);
+                          } 
+                      }
+                      let result = updateBalanceTo + sendAmount;
+                      console.log(result);
+                       
+                    
+                    
+
+                    //Update current balance for receiver
+                    if($(`.summary_${objTo.username} #update_balance`)!=="") {
+                      $(`.summary_${objTo.username} #initial_balance`).remove();
+                      $(`.summary_${objTo.username} #update_balance`).remove();
+                      $(`.summary_${objTo.username}`).append(`<li id="update_balance">Update Balance: ${result}</li>`);
+                    } else if($(`.summary_${objTo.username} #update_balance`)===""){
+                      $(`.summary_${objTo.username} #initial_balance`).remove();
+                      $(`.summary_${objTo.username}`).append(`<li id="update_balance">Update Balance: ${result}</li>`);
+                    }
+
                
                });
              
