@@ -67,10 +67,13 @@
       <h2>Account summary</h2>
       <ul id="summary"></ul>
       <span>Filter by account:</span>
-      <select id="select__filter-account"></select>
+      <select id="select__filter-account">
+        <option value="filter_select" id="filter_select">Select account</option>
+        <option value="filter__clearall" id="filter_clearall">*Clear all list</option>
+      </select>
       <br />
       <table>
-        <tr>
+        <tr id="tr__base">
           <th>Id</th>
           <th>Username</th>
           <th>Transaction Type</th>

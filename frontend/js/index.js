@@ -46,7 +46,7 @@ $(document).ready(() =>
         $("#select__account").append(`<option>${userId}: ${account.username.username}</option>`);
         $("#select__from").append(`<option>${userId}: ${account.username.username}</option>`);
         $("#select__to").append(`<option>${userId}: ${account.username.username}</option>`);
-        $("#select__filter-account").append(`<option>${userId}: ${account.username.username}</option>`);
+        $(`<option>${userId}: ${account.username.username}</option>`).insertBefore("#filter_clearall");
         $("#summary").append(`
         <div class="summary_${account.username.username}">
         <li>User Id: ${userId}</li>
@@ -273,7 +273,7 @@ $(document).ready(() =>
 
              if (selectedTransactionType!=="radio__transfer") {
               $("table").append(`
-              <tr>
+              <tr id="user${data[0].accountId}">
               <td>${data[0].accountId}</td>
               <td id="td__username">${data[0].username}</td>
               <td>${data[0].typeOfTransaction}</td>
@@ -287,7 +287,7 @@ $(document).ready(() =>
              } else 
              {
               $("table").append(`
-              <tr>
+              <tr id="user${data[0].accountId}">
               <td>---</td>
               <td id="td__username">---</td>
               <td>${data[0].typeOfTransaction}</td>
@@ -313,15 +313,10 @@ $(document).ready(() =>
                   // find username or id
                   let obj = data.find(elem => elem.id === selectingId);
                   console.log(obj);
-                  //********rewrite below using obj
-                //  for (let i = 0; i < data.length; i++) 
-                //  {
-                  // if (data[i].id == selectingId)
-                  // { 
-                    // let numOfTransactions = data[i].transactions.length;
                     let numOfTransactions = obj.transactions.length;
                     let updateBalance = 0;
                     let b = 0;
+                    
                     //iterate transactions obj for selected account
                     for (let j = 0; j < numOfTransactions; j++) 
                     {
@@ -344,8 +339,7 @@ $(document).ready(() =>
                       $(`.summary_${obj.username} #initial_balance`).remove();
                       $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
                     }
-                  // }
-                //  }
+               
                });
              
             }); //end of posting transaction
@@ -358,31 +352,29 @@ $(document).ready(() =>
         $("#input__description").val("");
         $("#input__amount").val("");
  });//End of event for add transaction
- 
-  //===================
-  //EVENT FOR ACCOUNT SELECTION
-  //===================
-  // if selectedAccount is changed, hide account summary which is not selected
-  $("#select__account").change(function(){
-    // $(this).val() = account00
-    //get transactions data from server
-    $.ajax({
-      method: 'get',
-      url: 'http://localhost:3000/accounts',
-      dataType: 'json',
-    }).done((data) => {
-      console.log('data ajax transaction get', data);
-    });
-  });//end event for changing account
-
   //===================
   // FILTER BY ACCOUNT
   //===================
-   //iterate each obj and get amount
-      //find username which is selected in filter
-      //sum up the amount and create balance if each obj has same username
   $("#select__filter-account").change(function(){
-      alert($(this).val()); //1: name
+    let selectedFilter = $("#select__filter-account option:selected").text();
+    if ($("tr").hasClass("filtered")) {
+      $("tr").removeClass("filtered");
+    }
+
+    if (selectedFilter === "*Clear all list") {
+      alert("Clear all transaction lists!");
+      $("tr").hide();
+      $("#tr__base").show();
+    } else if ((selectedFilter !== "Select account")) {
+      alert(selectedFilter);
+      $("tr").hide();
+      $("#tr__base").show();
+      let filterId = $(this).val().split(":")[0];
+      let filter = document.querySelectorAll(`#user${filterId}`);
+      for (let i = 0; i < filter.length; i++) {
+        filter[i].classList.toggle("filtered");
+      }
+    } 
   });//End of event for filtering table 
 
 
