@@ -181,12 +181,7 @@ $(document).ready(() =>
               console.log(selectedObj);
               let numOfTransactions = selectedObj.transactions.length;
               
-            //  for (let i = 0; i < data.length; i++) 
-            //  {
-              // if (data[i].id == Number(selectedAccountId[0]))
-              // {
-                // let numOfTransactions = data[i].transactions.length;
-                 //iterate transactions obj for selected account
+           
                  for (let i = 0; i < numOfTransactions; i++) 
                  {
                   if (selectedObj.transactions[i].typeOfTransaction == "deposit")
@@ -197,8 +192,7 @@ $(document).ready(() =>
                     c -= Number(selectedObj.transactions[i].amount);
                   }
                  }
-                // }
-              // } //end of for loop for accounts object
+               
              console.log(c);
              if ((selectedTransactionType!=="radio__deposit")&&(c < inputVal)) 
               {
@@ -276,73 +270,99 @@ $(document).ready(() =>
                {
                   console.log(data);
                   let selectingId = Number(selectedAccountId[0]);
+                  let selectingIdFrom = Number(selectedFromId[0]);
                   let selectingIdTo = Number(selectedToId[0]);
-                  console.log(selectingIdTo);
                   let obj = data.find(elem => elem.id === selectingId);
                   console.log(obj);
+                  let objFrom = data.find(elem => elem.id === selectingIdFrom);
+                  console.log(objFrom);
                   let objTo = data.find(elem => elem.id === selectingIdTo);
                   console.log(objTo);
                     let numOfTransactions = obj.transactions.length;
+                    let numOfTransactionsFrom = objFrom.transactions.length;
                     let numOfTransactionsTo = objTo.transactions.length;
                     let updateBalance = 0;
+                    let updateBalanceFrom = 0;
                     let updateBalanceTo = 0;
                     let sendAmount = 0;
 
                     //iterate transactions obj for selected account
-                    for (let j = 0; j < numOfTransactions; j++) 
+                    if (selectedTransactionType!=="radio__transfer") 
                     {
-                        if (obj.transactions[j].typeOfTransaction === "deposit") 
-                        {
-                          updateBalance += Number(obj.transactions[j].amount);
-                        } else if (obj.transactions[j].typeOfTransaction === "withdraw")
-                        {
-                          updateBalance -= Number(obj.transactions[j].amount);
-                        } else {
-                          updateBalance -= Number(obj.transactions[j].amount);
-                          sendAmount += Number(obj.transactions[j].amount);
-                        }
-                      
-                      console.log(updateBalance);
-                      console.log(sendAmount);
-                      //Update current balance
-                    if($(`.summary_${obj.username} #update_balance`)!=="") {
-                      $(`.summary_${obj.username} #initial_balance`).remove();
-                      $(`.summary_${obj.username} #update_balance`).remove();
-                      $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
-                    } else if($(`.summary_${obj.username} #update_balance`)==="")
-                    {
-                      $(`.summary_${obj.username} #initial_balance`).remove();
-                      $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
-                    }
-                    }
-                    
-                      for (let k = 0; k < numOfTransactionsTo; k++) 
+                      for (let j = 0; j < numOfTransactions; j++) 
                       {
-                          if (objTo.transactions[k].typeOfTransaction === "deposit") 
+                          if (obj.transactions[j].typeOfTransaction === "deposit") 
                           {
-                            updateBalanceTo += Number(objTo.transactions[k].amount);
-                          } else if (objTo.transactions[k].typeOfTransaction !== "deposit")
+                            updateBalance += Number(obj.transactions[j].amount);
+                          } else if (obj.transactions[j].typeOfTransaction === "withdraw")
                           {
-                            updateBalanceTo -= Number(objTo.transactions[k].amount);
-                          } 
-                      }
-                      let result = updateBalanceTo + sendAmount;
-                      console.log(result);
-                       
-                    
-                    
+                            updateBalance -= Number(obj.transactions[j].amount);
+                          } else {
+                            updateBalance -= Number(obj.transactions[j].amount);
+                            sendAmount += Number(obj.transactions[j].amount);
+                          }
+                          console.log(updateBalance);
+                        }
+                        console.log(sendAmount);
+                        $(`.summary_${obj.username} #initial_balance`).remove();
+                        $(`.summary_${obj.username} #update_balance`).remove();
+                        $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
+                    } else 
+                    {//transaction
+                      //sender
+                      for (let j = 0; j < numOfTransactionsFrom; j++) 
+                      {
+                          if (objFrom.transactions[j].typeOfTransaction === "deposit") 
+                          {
+                            updateBalanceFrom += Number(objFrom.transactions[j].amount);
+                          } else if (objFrom.transactions[j].typeOfTransaction === "withdraw")
+                          {
+                            updateBalanceFrom -= Number(objFrom.transactions[j].amount);
+                          } else {
+                            updateBalanceFrom -= Number(objFrom.transactions[j].amount);
+                            sendAmount += Number(objFrom.transactions[j].amount);
+                          }
+                          console.log(updateBalanceFrom);
+                        }
+                        console.log(sendAmount);
 
-                    //Update current balance for receiver
-                    if($(`.summary_${objTo.username} #update_balance`)!=="") {
-                      $(`.summary_${objTo.username} #initial_balance`).remove();
-                      $(`.summary_${objTo.username} #update_balance`).remove();
-                      $(`.summary_${objTo.username}`).append(`<li id="update_balance">Update Balance: ${result}</li>`);
-                    } else if($(`.summary_${objTo.username} #update_balance`)===""){
-                      $(`.summary_${objTo.username} #initial_balance`).remove();
-                      $(`.summary_${objTo.username}`).append(`<li id="update_balance">Update Balance: ${result}</li>`);
+                        //receiver
+                        for (let k = 0; k < numOfTransactionsTo; k++) 
+                        {
+                            if (objTo.transactions[k].typeOfTransaction !== "withdraw") 
+                            {
+                              updateBalanceTo += Number(objTo.transactions[k].amount);
+                            } else if (objTo.transactions[k].typeOfTransaction === "withdraw")
+                            {
+                              updateBalanceTo -= Number(objTo.transactions[k].amount);
+                            } 
+                            console.log(updateBalanceTo);
+                        }
+                        // let result = updateBalanceTo + sendAmount;
+                        // console.log(result);
+
+                        $(`.summary_${objFrom.username} #initial_balance`).remove();
+                        $(`.summary_${objFrom.username} #update_balance`).remove();
+                        $(`.summary_${objFrom.username}`).append(`<li id="update_balance">Update Balance: ${updateBalanceFrom}</li>`);
+
+                        $(`.summary_${objTo.username} #initial_balance`).remove();
+                        $(`.summary_${objTo.username} #update_balance`).remove();
+                        $(`.summary_${objTo.username}`).append(`<li id="update_balance">Update Balance: ${updateBalanceTo}</li>`);
+
+
                     }
+                    
+                     
+                        //Update current balance
+                    //   $(`.summary_${obj.username} #initial_balance`).remove();
+                    //   $(`.summary_${obj.username} #update_balance`).remove();
+                    //   $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
+                   
 
-               
+                    // //Update current balance for receiver
+                    //   $(`.summary_${objTo.username} #initial_balance`).remove();
+                    //   $(`.summary_${objTo.username} #update_balance`).remove();
+                    //   $(`.summary_${objTo.username}`).append(`<li id="update_balance">Update Balance: ${result}</li>`)
                });
              
             }); //end of posting transaction
