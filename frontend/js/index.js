@@ -1,7 +1,6 @@
 $(document).ready(() => 
 {
   let accountName = [];
-  let currentBalance = 0;
   let initialBalance = 0;
   //==========================
   //ADD NEW ACCOUNT
@@ -36,11 +35,11 @@ $(document).ready(() =>
         contentType: "application/json; charset=utf-8",
        }).done((data) =>
        {
-        console.log('data ajax post', data);
+        // console.log('data ajax post', data);
         const account = new Account(data);
         let userId = account.username.id;
-        console.log(userId);
-        console.log(data);
+        // console.log(userId);
+        // console.log(data);
         
         $("#select__account").append(`<option>${userId}: ${account.username.username}</option>`);
         $("#select__from").append(`<option>${userId}: ${account.username.username}</option>`);
@@ -181,7 +180,7 @@ $(document).ready(() =>
               console.log(selectedObjFrom);
               let numOfTransactions = selectedObj.transactions.length;
               let numOfTransactionsFrom = selectedObjFrom.transactions.length;
-              
+              //Get current balance for minus transaction
               if (selectedTransactionType!=="radio__transfer") 
               {
                 for (let i = 0; i < numOfTransactions; i++) 
@@ -214,7 +213,7 @@ $(document).ready(() =>
                 console.log(c);
               }
            
-                 
+             //Validation for minus transactions
              if ((selectedTransactionType!=="radio__deposit")&&(c < inputVal)) 
               {
               alert("Not enough balance for transaction");
@@ -223,6 +222,7 @@ $(document).ready(() =>
               isEnoughBalance = true;
               }
            console.log(isEnoughBalance);
+           //If no problems, send new transaction data to the server
           if ((isEnoughBalance === true)||(selectedTransactionType==="radio__deposit")) //post new transaction
           {
             alert(`Add new transaction (${selectedTransactionTypePrint[1]})`);
@@ -252,7 +252,7 @@ $(document).ready(() =>
             {
              let inputAmount = data[0].amount;
              let convertAmount = Number(inputAmount).toLocaleString();
-
+             //Append new transaction data to table
              if (selectedTransactionType!=="radio__transfer") {
               $("table").append(`
               <tr id="user${data[0].accountId}">
