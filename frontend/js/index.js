@@ -177,12 +177,16 @@ $(document).ready(() =>
               console.log(data);
               let c = 0;
               let selectingId = Number(selectedAccountId[0]);
+              let selectingIdFrom = Number(selectedFromId[0]);
               let selectedObj = data.find(elem => elem.id === selectingId);
-              console.log(selectedObj);
+              let selectedObjFrom = data.find(elem => elem.id === selectingIdFrom);
+              console.log(selectedObjFrom);
               let numOfTransactions = selectedObj.transactions.length;
+              let numOfTransactionsFrom = selectedObjFrom.transactions.length;
               
-           
-                 for (let i = 0; i < numOfTransactions; i++) 
+              if (selectedTransactionType!=="radio__transfer") 
+              {
+                for (let i = 0; i < numOfTransactions; i++) 
                  {
                   if (selectedObj.transactions[i].typeOfTransaction == "deposit")
                   {
@@ -192,8 +196,27 @@ $(document).ready(() =>
                     c -= Number(selectedObj.transactions[i].amount);
                   }
                  }
-               
              console.log(c);
+              } else 
+              {
+                for (let i = 0; i < numOfTransactionsFrom; i++) 
+                 {
+                  if (selectedObjFrom.transactions[i].typeOfTransaction == "deposit")
+                  {
+                    c += Number(selectedObjFrom.transactions[i].amount);
+                  } else if (selectedObjFrom.transactions[i].typeOfTransaction == "withdraw") 
+                  {
+                    c -= Number(selectedObjFrom.transactions[i].amount);
+                  } else if ((selectedObjFrom.transactions[i].typeOfTransaction == "transfer")&&(selectedObjFrom.transactions[i].accountIdFrom!=selectingIdFrom)) {
+                    c += Number(selectedObjFrom.transactions[i].amount);
+                  } else if ((selectedObjFrom.transactions[i].typeOfTransaction == "transfer")&&(selectedObjFrom.transactions[i].accountIdFrom==selectingIdFrom)) {
+                    c -= Number(selectedObjFrom.transactions[i].amount);
+                  }
+                 } 
+                console.log(c);
+              }
+           
+                 
              if ((selectedTransactionType!=="radio__deposit")&&(c < inputVal)) 
               {
               alert("Not enough balance for transaction");
@@ -297,18 +320,20 @@ $(document).ready(() =>
                           } else if (obj.transactions[j].typeOfTransaction === "withdraw")
                           {
                             updateBalance -= Number(obj.transactions[j].amount);
-                          } else {
+                          } else if ((obj.transactions[j].typeOfTransaction === "transfer")&&(obj.transactions[j].accountIdFrom==selectingId)) {
                             updateBalance -= Number(obj.transactions[j].amount);
-                            sendAmount += Number(obj.transactions[j].amount);
+                            // sendAmount += Number(obj.transactions[j].amount);
+                          } else if ((obj.transactions[j].typeOfTransaction === "transfer")&&(obj.transactions[j].accountIdFrom!=selectingId)) {
+                            updateBalance += Number(obj.transactions[j].amount);
                           }
                           console.log(updateBalance);
                         }
-                        console.log(sendAmount);
+                        // console.log(sendAmount);
                         $(`.summary_${obj.username} #initial_balance`).remove();
                         $(`.summary_${obj.username} #update_balance`).remove();
                         $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
                     } else 
-                    {//transaction
+                    {//transfer
                       //sender
                       for (let j = 0; j < numOfTransactionsFrom; j++) 
                       {
@@ -318,24 +343,30 @@ $(document).ready(() =>
                           } else if (objFrom.transactions[j].typeOfTransaction === "withdraw")
                           {
                             updateBalanceFrom -= Number(objFrom.transactions[j].amount);
-                          } else {
+                          } else if ((objFrom.transactions[j].typeOfTransaction === "transfer")&&(objFrom.transactions[j].accountIdFrom==selectingIdFrom)){
                             updateBalanceFrom -= Number(objFrom.transactions[j].amount);
-                            sendAmount += Number(objFrom.transactions[j].amount);
+                          } else if ((objFrom.transactions[j].typeOfTransaction === "transfer")&&(objFrom.transactions[j].accountIdFrom!=selectingIdFrom)) {
+                            updateBalanceFrom += Number(objFrom.transactions[j].amount);
                           }
                           console.log(updateBalanceFrom);
                         }
-                        console.log(sendAmount);
+                        // console.log(sendAmount);
 
                         //receiver
                         for (let k = 0; k < numOfTransactionsTo; k++) 
                         {
-                            if (objTo.transactions[k].typeOfTransaction !== "withdraw") 
+                            if (objTo.transactions[k].typeOfTransaction === "deposit") 
                             {
                               updateBalanceTo += Number(objTo.transactions[k].amount);
                             } else if (objTo.transactions[k].typeOfTransaction === "withdraw")
                             {
                               updateBalanceTo -= Number(objTo.transactions[k].amount);
-                            } 
+                            } else if ((objTo.transactions[k].typeOfTransaction === "transfer")&&(objTo.transactions[k].accountIdFrom==selectingIdTo))
+                            {
+                              updateBalanceTo -= Number(objTo.transactions[k].amount);
+                            } else if ((objTo.transactions[k].typeOfTransaction === "transfer")&&(objTo.transactions[k].accountIdFrom!=selectingIdTo)) {
+                              updateBalanceTo += Number(objTo.transactions[k].amount);
+                            }
                             console.log(updateBalanceTo);
                         }
                         // let result = updateBalanceTo + sendAmount;
