@@ -1,5 +1,6 @@
 body {
   background-color: #F5F6F7;
+  color: #152855;
 }
 header {
   background-color: #152855;
@@ -14,8 +15,28 @@ h2 {
   margin: 60px 0 10px 0;
 }
 
+
 main {
   padding: 30px;
+  margin: 0 auto;
+  width: 90%;
+}
+
+select {
+  width: 20rem;
+  padding: 5px;
+}
+
+select:hover {
+  cursor: pointer;
+}
+
+span {
+  font-size: 1.3rem;
+}
+
+table {
+  margin-top: 10px;
 }
 
 td {
@@ -39,6 +60,10 @@ ul {
   list-style: none;
 }
 
+#account, #from_to {
+  margin-bottom: 20px;
+}
+
 #btn__add-account, #btn__add-transaction, #btn__add-category {
   background-color: #0055B9;
   color: white;
@@ -54,7 +79,7 @@ ul {
    transition: all .5s;
 }
 
-#input__account {
+#input__account, #input__amount, #input__category, #input__description {
   width: 20rem;
   padding: 5px;
 }
@@ -73,6 +98,18 @@ ul {
   width: 300px;
 }
 
+#radio__deposit, #radio__withdraw, #radio__transfer {
+  margin-right: 20px;
+}
+
+#radio__deposit:hover, #radio__withdraw:hover, #radio__transfer:hover {
+  cursor: pointer;
+}
+
 .filtered {
   display: table-row !important; 
+}
+
+.wrap__amount, .wrap__category, .wrap__description, .wrap__radio {
+   margin-bottom: 20px;
 }

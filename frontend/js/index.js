@@ -131,6 +131,7 @@ $(document).ready(() =>
     e.preventDefault();
     let amountVal = $("#input__amount").val(); //string
     let inputVal = Number(amountVal);
+    let inputDescription = $("#input__description").val();
     let selectedCategory = $("#select__category option:selected").val();
     let selectedCategoryPrint = $("#select__category option:selected").text();
     let selectedAccount = $("#select__account option:selected").val();
@@ -143,10 +144,7 @@ $(document).ready(() =>
     let selectedFromId = from.split(":");
     let selectedToId = to.split(":");
     
-
         //Validation before posting new transaction
-         
-         
          if (inputVal <= 0) 
          {
            alert("Amount must be grater than 0!");
@@ -243,7 +241,7 @@ $(document).ready(() =>
                  username: (selectedTransactionType==="radio__transfer")?selectedFrom:selectedAccount,
                  typeOfTransaction: selectedTransactionTypePrint[1],
                  category: ((selectedCategory!=="select_category") && (selectedCategory!=="add_new_category"))?selectedCategoryPrint:"",
-                 description: $("#input__description").val(),
+                 description: inputDescription,
                  amount: inputVal
                }
              }
@@ -301,13 +299,12 @@ $(document).ready(() =>
                   console.log(objFrom);
                   let objTo = data.find(elem => elem.id === selectingIdTo);
                   console.log(objTo);
-                    let numOfTransactions = obj.transactions.length;
-                    let numOfTransactionsFrom = objFrom.transactions.length;
-                    let numOfTransactionsTo = objTo.transactions.length;
-                    let updateBalance = 0;
-                    let updateBalanceFrom = 0;
-                    let updateBalanceTo = 0;
-                    let sendAmount = 0;
+                  let numOfTransactions = obj.transactions.length;
+                  let numOfTransactionsFrom = objFrom.transactions.length;
+                  let numOfTransactionsTo = objTo.transactions.length;
+                  let updateBalance = 0;
+                  let updateBalanceFrom = 0;
+                  let updateBalanceTo = 0;
 
                     //iterate transactions obj for selected account
                     if (selectedTransactionType!=="radio__transfer") 
@@ -322,13 +319,11 @@ $(document).ready(() =>
                             updateBalance -= Number(obj.transactions[j].amount);
                           } else if ((obj.transactions[j].typeOfTransaction === "transfer")&&(obj.transactions[j].accountIdFrom==selectingId)) {
                             updateBalance -= Number(obj.transactions[j].amount);
-                            // sendAmount += Number(obj.transactions[j].amount);
                           } else if ((obj.transactions[j].typeOfTransaction === "transfer")&&(obj.transactions[j].accountIdFrom!=selectingId)) {
                             updateBalance += Number(obj.transactions[j].amount);
                           }
                           console.log(updateBalance);
                         }
-                        // console.log(sendAmount);
                         $(`.summary_${obj.username} #initial_balance`).remove();
                         $(`.summary_${obj.username} #update_balance`).remove();
                         $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
@@ -350,7 +345,6 @@ $(document).ready(() =>
                           }
                           console.log(updateBalanceFrom);
                         }
-                        // console.log(sendAmount);
 
                         //receiver
                         for (let k = 0; k < numOfTransactionsTo; k++) 
@@ -369,9 +363,6 @@ $(document).ready(() =>
                             }
                             console.log(updateBalanceTo);
                         }
-                        // let result = updateBalanceTo + sendAmount;
-                        // console.log(result);
-
                         $(`.summary_${objFrom.username} #initial_balance`).remove();
                         $(`.summary_${objFrom.username} #update_balance`).remove();
                         $(`.summary_${objFrom.username}`).append(`<li id="update_balance">Update Balance: ${updateBalanceFrom}</li>`);
@@ -379,26 +370,10 @@ $(document).ready(() =>
                         $(`.summary_${objTo.username} #initial_balance`).remove();
                         $(`.summary_${objTo.username} #update_balance`).remove();
                         $(`.summary_${objTo.username}`).append(`<li id="update_balance">Update Balance: ${updateBalanceTo}</li>`);
-
-
                     }
-                    
-                     
-                        //Update current balance
-                    //   $(`.summary_${obj.username} #initial_balance`).remove();
-                    //   $(`.summary_${obj.username} #update_balance`).remove();
-                    //   $(`.summary_${obj.username}`).append(`<li id="update_balance">Update Balance: ${updateBalance}</li>`);
-                   
-
-                    // //Update current balance for receiver
-                    //   $(`.summary_${objTo.username} #initial_balance`).remove();
-                    //   $(`.summary_${objTo.username} #update_balance`).remove();
-                    //   $(`.summary_${objTo.username}`).append(`<li id="update_balance">Update Balance: ${result}</li>`)
                });
-             
             }); //end of posting transaction
           }
-          
         });//end of get method for accounts server data
        }  //end of else 
         
@@ -411,15 +386,18 @@ $(document).ready(() =>
   //===================
   $("#select__filter-account").change(function(){
     let selectedFilter = $("#select__filter-account option:selected").text();
-    if ($("tr").hasClass("filtered")) {
+    if ($("tr").hasClass("filtered")) 
+    {
       $("tr").removeClass("filtered");
     }
 
-    if (selectedFilter === "*Clear all list") {
+    if (selectedFilter === "*Clear all list") 
+    {
       alert("Clear all transaction lists!");
       $("tr").hide();
       $("#tr__base").show();
-    } else if ((selectedFilter !== "Select account")) {
+    } else if ((selectedFilter !== "Select account")) 
+    {
       alert(selectedFilter);
       $("tr").hide();
       $("#tr__base").show();
@@ -430,6 +408,4 @@ $(document).ready(() =>
       }
     } 
   });//End of event for filtering table 
-
-
 }); //End of document get ready event
